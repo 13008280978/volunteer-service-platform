@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.volunteer.dao.EnrollmentDao">
+    <resultMap id="EnrollResult" type="com.volunteer.po.Enrollment">
+        <id property="enrollId" column="enroll_id"/>
+        <result property="volId" column="vol_id"/>
+        <result property="actId" column="act_id"/>
+        <result property="enrollReason" column="enroll_reason"/>
+        <result property="enrollStatus" column="enroll_status"/>
+        <result property="enrollTime" column="enroll_time"/>
+        <result property="auditTime" column="audit_time"/>
+        <result property="auditRemark" column="audit_remark"/>
+        <result property="volName" column="vol_name"/>
+        <result property="volPhone" column="vol_phone"/>
+        <result property="actTitle" column="act_title"/>
+    </resultMap>
+    <select id="findById" resultMap="EnrollResult">
+        SELECT e.*, v.vol_name, v.vol_phone, a.act_title FROM ENROLLMENT e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.enroll_id = #{enrollId}
+    </select>
+    <select id="findByVolAndAct" resultMap="EnrollResult">
+        SELECT e.*, v.vol_name, a.act_title FROM ENROLLMENT e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.vol_id = #{volId} AND e.act_id = #{actId}
+    </select>
+    <select id="findByVolId" resultMap="EnrollResult">
+        SELECT e.*, v.vol_name, a.act_title FROM ENROLLMENT e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.vol_id = #{volId} ORDER BY e.enroll_time DESC
+    </select>
+    <select id="findByActId" resultMap="EnrollResult">
+        SELECT e.*, v.vol_name, v.vol_phone, a.act_title FROM ENROLLMENT e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.act_id = #{actId} ORDER BY e.enroll_time
+    </select>
+    <select id="findAll" resultMap="EnrollResult">
+        SELECT e.*, v.vol_name, v.vol_phone, a.act_title FROM ENROLLMENT e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        ORDER BY e.enroll_time DESC
+    </select>
+    <select id="findByStatus" resultMap="EnrollResult">
+        SELECT e.*, v.vol_name, a.act_title FROM ENROLLMENT e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.enroll_status = #{enrollStatus} ORDER BY e.enroll_time DESC
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="enrollId">
+        INSERT INTO ENROLLMENT(vol_id, act_id, enroll_reason) VALUES(#{volId}, #{actId}, #{enrollReason})
+    </insert>
+    <update id="update">
+        UPDATE ENROLLMENT SET enroll_reason = #{enrollReason}, enroll_status = #{enrollStatus}, audit_time = #{auditTime}, audit_remark = #{auditRemark} WHERE enroll_id = #{enrollId}
+    </update>
+    <update id="updateStatus">
+        UPDATE ENROLLMENT SET enroll_status = #{enrollStatus}, audit_time = NOW(), audit_remark = #{auditRemark} WHERE enroll_id = #{enrollId}
+    </update>
+    <select id="countByActId" resultType="int">SELECT COUNT(*) FROM ENROLLMENT WHERE act_id = #{actId} AND enroll_status IN (0, 1)</select>
+    <select id="countByVolId" resultType="int">SELECT COUNT(*) FROM ENROLLMENT WHERE vol_id = #{volId}</select>
+</mapper>

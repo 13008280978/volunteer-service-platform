@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.volunteer.dao.ActivityTypeDao">
+    <resultMap id="TypeResult" type="com.volunteer.po.ActivityType">
+        <id property="typeId" column="type_id"/>
+        <result property="typeName" column="type_name"/>
+        <result property="typeDesc" column="type_desc"/>
+        <result property="typeSort" column="type_sort"/>
+        <result property="typeStatus" column="type_status"/>
+        <result property="createTime" column="create_time"/>
+    </resultMap>
+    <select id="findAll" resultMap="TypeResult">
+        SELECT * FROM ACTIVITYTYPE ORDER BY type_sort
+    </select>
+    <select id="findActive" resultMap="TypeResult">
+        SELECT * FROM ACTIVITYTYPE WHERE type_status = 1 ORDER BY type_sort
+    </select>
+    <select id="findById" resultMap="TypeResult">
+        SELECT * FROM ACTIVITYTYPE WHERE type_id = #{typeId}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="typeId">
+        INSERT INTO ACTIVITYTYPE(type_name, type_desc, type_sort) VALUES(#{typeName}, #{typeDesc}, #{typeSort})
+    </insert>
+    <update id="update">
+        UPDATE ACTIVITYTYPE SET type_name = #{typeName}, type_desc = #{typeDesc}, type_sort = #{typeSort} WHERE type_id = #{typeId}
+    </update>
+    <update id="updateStatus">
+        UPDATE ACTIVITYTYPE SET type_status = #{typeStatus} WHERE type_id = #{typeId}
+    </update>
+</mapper>

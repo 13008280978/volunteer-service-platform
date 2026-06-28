@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.volunteer.dao.NoticeDao">
+    <resultMap id="NoticeResult" type="com.volunteer.po.Notice">
+        <id property="noticeId" column="notice_id"/>
+        <result property="noticeTitle" column="notice_title"/>
+        <result property="noticeContent" column="notice_content"/>
+        <result property="noticeType" column="notice_type"/>
+        <result property="noticePriority" column="notice_priority"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="noticeStatus" column="notice_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="adminName" column="admin_name"/>
+    </resultMap>
+    <select id="findById" resultMap="NoticeResult">SELECT n.*,a.admin_name FROM NOTICETABLE n LEFT JOIN AUSER a ON n.admin_id=a.admin_id WHERE n.notice_id=#{noticeId}</select>
+    <select id="findAll" resultMap="NoticeResult">SELECT n.*,a.admin_name FROM NOTICETABLE n LEFT JOIN AUSER a ON n.admin_id=a.admin_id ORDER BY n.create_time DESC</select>
+    <select id="findPublished" resultMap="NoticeResult">SELECT n.*,a.admin_name FROM NOTICETABLE n LEFT JOIN AUSER a ON n.admin_id=a.admin_id WHERE n.notice_status=1 ORDER BY n.notice_priority DESC,n.create_time DESC</select>
+    <select id="findByPage" resultMap="NoticeResult">SELECT n.*,a.admin_name FROM NOTICETABLE n LEFT JOIN AUSER a ON n.admin_id=a.admin_id WHERE n.notice_status=1 ORDER BY n.notice_priority DESC,n.create_time DESC LIMIT #{offset},#{limit}</select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="noticeId">INSERT INTO NOTICETABLE(notice_title,notice_content,notice_type,notice_priority,admin_id,notice_status) VALUES(#{noticeTitle},#{noticeContent},#{noticeType},#{noticePriority},#{adminId},#{noticeStatus})</insert>
+    <update id="update">UPDATE NOTICETABLE SET notice_title=#{noticeTitle},notice_content=#{noticeContent},notice_type=#{noticeType},notice_priority=#{noticePriority} WHERE notice_id=#{noticeId}</update>
+    <update id="updateStatus">UPDATE NOTICETABLE SET notice_status=#{noticeStatus} WHERE notice_id=#{noticeId}</update>
+    <select id="countAll" resultType="int">SELECT COUNT(*) FROM NOTICETABLE</select>
+</mapper>

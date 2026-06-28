@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.volunteer.dao.ActivityDao">
+    <resultMap id="ActivityResult" type="com.volunteer.po.Activity">
+        <id property="actId" column="act_id"/>
+        <result property="actTitle" column="act_title"/>
+        <result property="actDesc" column="act_desc"/>
+        <result property="actTypeId" column="act_type_id"/>
+        <result property="actLocation" column="act_location"/>
+        <result property="actStartTime" column="act_start_time"/>
+        <result property="actEndTime" column="act_end_time"/>
+        <result property="actEnrollDeadline" column="act_enroll_deadline"/>
+        <result property="actMaxPeople" column="act_max_people"/>
+        <result property="actCurrentPeople" column="act_current_people"/>
+        <result property="actHours" column="act_hours"/>
+        <result property="actPoints" column="act_points"/>
+        <result property="actContact" column="act_contact"/>
+        <result property="actContactPhone" column="act_contact_phone"/>
+        <result property="actStatus" column="act_status"/>
+        <result property="adminId" column="admin_id"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="typeName" column="type_name"/>
+        <result property="adminName" column="admin_name"/>
+    </resultMap>
+    <select id="findById" resultMap="ActivityResult">
+        SELECT a.*, t.type_name, u.admin_name FROM ACTIVITY a
+        LEFT JOIN ACTIVITYTYPE t ON a.act_type_id = t.type_id
+        LEFT JOIN AUSER u ON a.admin_id = u.admin_id WHERE a.act_id = #{actId}
+    </select>
+    <select id="findAll" resultMap="ActivityResult">
+        SELECT a.*, t.type_name, u.admin_name FROM ACTIVITY a
+        LEFT JOIN ACTIVITYTYPE t ON a.act_type_id = t.type_id
+        LEFT JOIN AUSER u ON a.admin_id = u.admin_id ORDER BY a.create_time DESC
+    </select>
+    <select id="findByStatus" resultMap="ActivityResult">
+        SELECT a.*, t.type_name FROM ACTIVITY a
+        LEFT JOIN ACTIVITYTYPE t ON a.act_type_id = t.type_id
+        WHERE a.act_status = #{actStatus} ORDER BY a.act_start_time DESC
+    </select>
+    <select id="search" resultMap="ActivityResult">
+        SELECT a.*, t.type_name FROM ACTIVITY a
+        LEFT JOIN ACTIVITYTYPE t ON a.act_type_id = t.type_id
+        <where>
+            <if test="typeId != null">AND a.act_type_id = #{typeId}</if>
+            <if test="keyword != null and keyword != ''">AND a.act_title LIKE CONCAT('%', #{keyword}, '%')</if>
+            <if test="location != null and location != ''">AND a.act_location LIKE CONCAT('%', #{location}, '%')</if>
+        </where>
+        ORDER BY a.act_start_time DESC
+    </select>
+    <select id="findLatest" resultMap="ActivityResult">
+        SELECT a.*, t.type_name FROM ACTIVITY a
+        LEFT JOIN ACTIVITYTYPE t ON a.act_type_id = t.type_id
+        WHERE a.act_status IN (1, 2) ORDER BY a.act_start_time ASC LIMIT #{limit}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="actId">
+        INSERT INTO ACTIVITY(act_title,act_desc,act_type_id,act_location,act_start_time,act_end_time,act_enroll_deadline,act_max_people,act_hours,act_points,act_contact,act_contact_phone,act_status,admin_id)
+        VALUES(#{actTitle},#{actDesc},#{actTypeId},#{actLocation},#{actStartTime},#{actEndTime},#{actEnrollDeadline},#{actMaxPeople},#{actHours},#{actPoints},#{actContact},#{actContactPhone},#{actStatus},#{adminId})
+    </insert>
+    <update id="update">
+        UPDATE ACTIVITY <set>
+            <if test="actTitle != null">act_title=#{actTitle},</if>
+            <if test="actDesc != null">act_desc=#{actDesc},</if>
+            <if test="actTypeId != null">act_type_id=#{actTypeId},</if>
+            <if test="actLocation != null">act_location=#{actLocation},</if>
+            <if test="actStartTime != null">act_start_time=#{actStartTime},</if>
+            <if test="actEndTime != null">act_end_time=#{actEndTime},</if>
+            <if test="actMaxPeople != null">act_max_people=#{actMaxPeople},</if>
+            <if test="actHours != null">act_hours=#{actHours},</if>
+            <if test="actPoints != null">act_points=#{actPoints},</if>
+            <if test="actStatus != null">act_status=#{actStatus},</if>
+        </set> WHERE act_id = #{actId}
+    </update>
+    <update id="updateStatus">UPDATE ACTIVITY SET act_status=#{actStatus} WHERE act_id=#{actId}</update>
+    <update id="updateCurrentPeople">UPDATE ACTIVITY SET act_current_people=#{actCurrentPeople} WHERE act_id=#{actId}</update>
+    <select id="countAll" resultType="int">SELECT COUNT(*) FROM ACTIVITY</select>
+    <select id="countByStatus" resultType="int">SELECT COUNT(*) FROM ACTIVITY WHERE act_status=#{actStatus}</select>
+    <select id="sumTotalHours" resultType="java.lang.Double">SELECT COALESCE(SUM(sr.service_hours),0) FROM SERVICERECORD sr WHERE sr.service_status=1</select>
+</mapper>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.volunteer.dao.AttendanceDao">
+    <resultMap id="AttendanceResult" type="com.volunteer.po.Attendance">
+        <id property="attendId" column="attend_id"/>
+        <result property="enrollId" column="enroll_id"/>
+        <result property="volId" column="vol_id"/>
+        <result property="actId" column="act_id"/>
+        <result property="checkinTime" column="checkin_time"/>
+        <result property="checkoutTime" column="checkout_time"/>
+        <result property="actualHours" column="actual_hours"/>
+        <result property="checkinStatus" column="checkin_status"/>
+        <result property="checkinAddress" column="checkin_address"/>
+        <result property="createTime" column="create_time"/>
+        <result property="volName" column="vol_name"/>
+        <result property="actTitle" column="act_title"/>
+    </resultMap>
+    <select id="findById" resultMap="AttendanceResult">
+        SELECT att.*,v.vol_name,a.act_title FROM ATTENDANCE att LEFT JOIN VOLUNTEER v ON att.vol_id=v.vol_id LEFT JOIN ACTIVITY a ON att.act_id=a.act_id WHERE att.attend_id=#{attendId}
+    </select>
+    <select id="findByEnrollId" resultMap="AttendanceResult">
+        SELECT att.*,v.vol_name FROM ATTENDANCE att LEFT JOIN VOLUNTEER v ON att.vol_id=v.vol_id WHERE att.enroll_id=#{enrollId}
+    </select>
+    <select id="findByVolId" resultMap="AttendanceResult">
+        SELECT att.*,v.vol_name,a.act_title FROM ATTENDANCE att LEFT JOIN VOLUNTEER v ON att.vol_id=v.vol_id LEFT JOIN ACTIVITY a ON att.act_id=a.act_id WHERE att.vol_id=#{volId} ORDER BY att.create_time DESC
+    </select>
+    <select id="findByActId" resultMap="AttendanceResult">
+        SELECT att.*,v.vol_name FROM ATTENDANCE att LEFT JOIN VOLUNTEER v ON att.vol_id=v.vol_id WHERE att.act_id=#{actId}
+    </select>
+    <select id="findAll" resultMap="AttendanceResult">
+        SELECT att.*,v.vol_name,a.act_title FROM ATTENDANCE att LEFT JOIN VOLUNTEER v ON att.vol_id=v.vol_id LEFT JOIN ACTIVITY a ON att.act_id=a.act_id ORDER BY att.create_time DESC
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="attendId">
+        INSERT INTO ATTENDANCE(enroll_id,vol_id,act_id,checkin_time,checkin_status,checkin_address) VALUES(#{enrollId},#{volId},#{actId},NOW(),1,#{checkinAddress})
+    </insert>
+    <update id="updateCheckout">UPDATE ATTENDANCE SET checkout_time=#{checkoutTime},actual_hours=#{actualHours},checkin_status=#{checkinStatus} WHERE attend_id=#{attendId}</update>
+    <update id="updateConfirm">UPDATE ATTENDANCE SET checkin_status=#{checkinStatus} WHERE attend_id=#{attendId}</update>
+</mapper>

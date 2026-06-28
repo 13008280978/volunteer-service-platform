@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.volunteer.dao.ExperienceDao">
+    <resultMap id="ExpResult" type="com.volunteer.po.Experience">
+        <id property="expId" column="exp_id"/>
+        <result property="volId" column="vol_id"/>
+        <result property="actId" column="act_id"/>
+        <result property="expTitle" column="exp_title"/>
+        <result property="expContent" column="exp_content"/>
+        <result property="expImages" column="exp_images"/>
+        <result property="expStatus" column="exp_status"/>
+        <result property="expViews" column="exp_views"/>
+        <result property="expRemark" column="exp_remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="volName" column="vol_name"/>
+        <result property="actTitle" column="act_title"/>
+    </resultMap>
+    <select id="findById" resultMap="ExpResult">
+        SELECT e.*, v.vol_name, a.act_title FROM EXPERIENCE e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.exp_id = #{expId}
+    </select>
+    <select id="findByVolId" resultMap="ExpResult">
+        SELECT e.*, v.vol_name, a.act_title FROM EXPERIENCE e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.vol_id = #{volId} ORDER BY e.create_time DESC
+    </select>
+    <select id="findAll" resultMap="ExpResult">
+        SELECT e.*, v.vol_name, a.act_title FROM EXPERIENCE e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        ORDER BY e.create_time DESC
+    </select>
+    <select id="findByStatus" resultMap="ExpResult">
+        SELECT e.*, v.vol_name, a.act_title FROM EXPERIENCE e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.exp_status = #{expStatus} ORDER BY e.create_time DESC
+    </select>
+    <select id="findApproved" resultMap="ExpResult">
+        SELECT e.*, v.vol_name, a.act_title FROM EXPERIENCE e
+        LEFT JOIN VOLUNTEER v ON e.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON e.act_id = a.act_id
+        WHERE e.exp_status = 1 ORDER BY e.create_time DESC LIMIT #{offset}, #{limit}
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="expId">
+        INSERT INTO EXPERIENCE(vol_id, act_id, exp_title, exp_content, exp_images) VALUES(#{volId}, #{actId}, #{expTitle}, #{expContent}, #{expImages})
+    </insert>
+    <update id="update">
+        UPDATE EXPERIENCE SET exp_title = #{expTitle}, exp_content = #{expContent}, exp_images = #{expImages} WHERE exp_id = #{expId}
+    </update>
+    <update id="updateStatus">
+        UPDATE EXPERIENCE SET exp_status = #{expStatus}, exp_remark = #{expRemark} WHERE exp_id = #{expId}
+    </update>
+    <update id="incrementViews">
+        UPDATE EXPERIENCE SET exp_views = exp_views + 1 WHERE exp_id = #{expId}
+    </update>
+    <select id="countAll" resultType="int">SELECT COUNT(*) FROM EXPERIENCE</select>
+    <select id="countByStatus" resultType="int">SELECT COUNT(*) FROM EXPERIENCE WHERE exp_status = #{expStatus}</select>
+</mapper>

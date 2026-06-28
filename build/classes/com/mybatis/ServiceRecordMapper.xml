@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.volunteer.dao.ServiceRecordDao">
+    <resultMap id="RecordResult" type="com.volunteer.po.ServiceRecord">
+        <id property="recordId" column="record_id"/>
+        <result property="volId" column="vol_id"/>
+        <result property="actId" column="act_id"/>
+        <result property="attendId" column="attend_id"/>
+        <result property="serviceDate" column="service_date"/>
+        <result property="serviceHours" column="service_hours"/>
+        <result property="serviceContent" column="service_content"/>
+        <result property="serviceEvaluation" column="service_evaluation"/>
+        <result property="serviceStatus" column="service_status"/>
+        <result property="createTime" column="create_time"/>
+        <result property="volName" column="vol_name"/>
+        <result property="actTitle" column="act_title"/>
+    </resultMap>
+    <select id="findById" resultMap="RecordResult">
+        SELECT sr.*, v.vol_name, a.act_title FROM SERVICERECORD sr
+        LEFT JOIN VOLUNTEER v ON sr.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON sr.act_id = a.act_id
+        WHERE sr.record_id = #{recordId}
+    </select>
+    <select id="findByVolId" resultMap="RecordResult">
+        SELECT sr.*, v.vol_name, a.act_title FROM SERVICERECORD sr
+        LEFT JOIN VOLUNTEER v ON sr.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON sr.act_id = a.act_id
+        WHERE sr.vol_id = #{volId} ORDER BY sr.service_date DESC
+    </select>
+    <select id="findByActId" resultMap="RecordResult">
+        SELECT sr.*, v.vol_name, a.act_title FROM SERVICERECORD sr
+        LEFT JOIN VOLUNTEER v ON sr.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON sr.act_id = a.act_id
+        WHERE sr.act_id = #{actId} ORDER BY sr.service_date
+    </select>
+    <select id="findAll" resultMap="RecordResult">
+        SELECT sr.*, v.vol_name, a.act_title FROM SERVICERECORD sr
+        LEFT JOIN VOLUNTEER v ON sr.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON sr.act_id = a.act_id
+        ORDER BY sr.create_time DESC
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="recordId">
+        INSERT INTO SERVICERECORD(vol_id, act_id, attend_id, service_date, service_hours, service_content, service_evaluation)
+        VALUES(#{volId}, #{actId}, #{attendId}, #{serviceDate}, #{serviceHours}, #{serviceContent}, #{serviceEvaluation})
+    </insert>
+    <update id="update">
+        UPDATE SERVICERECORD SET service_content = #{serviceContent}, service_evaluation = #{serviceEvaluation}, service_status = #{serviceStatus} WHERE record_id = #{recordId}
+    </update>
+    <select id="countByVolId" resultType="int">SELECT COUNT(*) FROM SERVICERECORD WHERE vol_id = #{volId} AND service_status = 1</select>
+    <select id="sumHoursByVolId" resultType="java.lang.Double">SELECT COALESCE(SUM(service_hours), 0) FROM SERVICERECORD WHERE vol_id = #{volId} AND service_status = 1</select>
+</mapper>

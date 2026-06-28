@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.volunteer.dao.PointsDao">
+    <resultMap id="PointsResult" type="com.volunteer.po.Points">
+        <id property="pointId" column="point_id"/>
+        <result property="volId" column="vol_id"/>
+        <result property="actId" column="act_id"/>
+        <result property="pointType" column="point_type"/>
+        <result property="pointValue" column="point_value"/>
+        <result property="pointDesc" column="point_desc"/>
+        <result property="pointBalance" column="point_balance"/>
+        <result property="createTime" column="create_time"/>
+        <result property="volName" column="vol_name"/>
+        <result property="actTitle" column="act_title"/>
+    </resultMap>
+    <select id="findById" resultMap="PointsResult">
+        SELECT p.*, v.vol_name, a.act_title FROM POINTS p
+        LEFT JOIN VOLUNTEER v ON p.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON p.act_id = a.act_id
+        WHERE p.point_id = #{pointId}
+    </select>
+    <select id="findByVolId" resultMap="PointsResult">
+        SELECT p.*, v.vol_name, a.act_title FROM POINTS p
+        LEFT JOIN VOLUNTEER v ON p.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON p.act_id = a.act_id
+        WHERE p.vol_id = #{volId} ORDER BY p.create_time DESC
+    </select>
+    <select id="findAll" resultMap="PointsResult">
+        SELECT p.*, v.vol_name, a.act_title FROM POINTS p
+        LEFT JOIN VOLUNTEER v ON p.vol_id = v.vol_id
+        LEFT JOIN ACTIVITY a ON p.act_id = a.act_id
+        ORDER BY p.create_time DESC
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="pointId">
+        INSERT INTO POINTS(vol_id, act_id, point_type, point_value, point_desc, point_balance)
+        VALUES(#{volId}, #{actId}, #{pointType}, #{pointValue}, #{pointDesc}, #{pointBalance})
+    </insert>
+    <update id="update">
+        UPDATE POINTS SET point_value = #{pointValue}, point_desc = #{pointDesc} WHERE point_id = #{pointId}
+    </update>
+    <select id="getBalanceByVolId" resultType="java.lang.Integer">
+        SELECT COALESCE(SUM(point_value), 0) FROM POINTS WHERE vol_id = #{volId}
+    </select>
+</mapper>
